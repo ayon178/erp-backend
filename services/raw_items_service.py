@@ -85,3 +85,47 @@ def fetch_all_raw_items(
         },
         "data": raw_items_list
     }
+
+
+from typing import Dict, Optional
+from pymongo import ReturnDocument
+from database.connection import rawItem_collection
+from bson.objectid import ObjectId
+import datetime
+
+def edit_raw_item(item_id: str, updates: Dict[str, Optional[str]]) -> dict:
+    """
+    Updates a raw item in the database based on the given item_id and update fields.
+
+    :param item_id: The ID of the raw item to edit.
+    :param updates: A dictionary of fields to update with their new values.
+    """
+    # Ensure the item_id is a valid ObjectId
+    try:
+        object_id = ObjectId(item_id)
+    except Exception as e:
+        raise ValueError("Invalid item_id. Must be a valid ObjectId.")
+
+    # Add the updated timestamp
+    current_timestamp = datetime.datetime.now().isoformat()
+    updates["updatedAt"] = current_timestamp
+
+    # Prepare the update query
+    update_query = {"$set": updates}
+
+    # Update the raw item and return the updated document
+    updated_item = rawItem_collection.find_one_and_update(
+        {"_id": object_id},  # Filter by item_id
+        update_query,         # Update with new values
+        return_document=ReturnDocument.AFTER
+    )
+
+    if updated_item:
+        # Convert ObjectId to string
+        return {
+            "_id": str(updated_item["_id"]),
+            "title": updated_item.get("title", ""),
+            "updatedAt": current_timestamp
+        }
+    else:
+        raise ValueError("Raw item not found")

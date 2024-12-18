@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from typing import Optional, Dict
 from models.raw_items_model import RawItemModel
 from services.raw_items_service import create_raw_item
 from utils.response import create_response
-from services.raw_items_service import fetch_all_raw_items
+from services.raw_items_service import fetch_all_raw_items, edit_raw_item
 
 raw_items_route = APIRouter()
 
@@ -46,3 +46,16 @@ def get_all_raw_items(
         data=response_data
     )
      
+
+@raw_items_route.put("/update/raw-item/{item_id}")
+def update_raw_item(item_id: str, updates: Dict):
+    try:
+        response_data = edit_raw_item(item_id, updates)
+        return create_response(
+            status="Ok",
+            status_code=200,
+            message="Raw item updated successfully",
+            data=response_data
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
