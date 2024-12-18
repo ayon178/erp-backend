@@ -5,6 +5,7 @@ from utils.response import create_response
 
 # Routes import
 from routes.entry import entry_route
+from routes.raw_items_route import raw_items_route
 
 app = FastAPI()
 
@@ -48,3 +49,5 @@ async def validation_exception_handler(request, exc: RequestValidationError):
 
 # Handle routes
 app.include_router(entry_route)
+app.include_router(raw_items_route)
+
