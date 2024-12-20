@@ -8,3 +8,4 @@ client = MongoClient(MONGO_URI)
 db = client.practice_fastapi
 rawItem_collection = db.raw_items
 meals_collection = db.meals
+feedback_collection = db.feedback_collection
