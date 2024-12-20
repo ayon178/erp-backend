@@ -7,3 +7,4 @@ MONGO_URI = "mongodb+srv://ayonjd178:ayonjd178@cluster0.wqxk9a6.mongodb.net/?ret
 client = MongoClient(MONGO_URI)
 db = client.practice_fastapi
 rawItem_collection = db.raw_items
+meals_collection = db.meals

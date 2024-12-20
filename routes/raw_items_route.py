@@ -18,6 +18,7 @@ def new_raw_item(doc: RawItemModel):
         data=response_data
     )
 
+# Get all raw items
 @raw_items_route.get("/raw-items")
 def get_all_raw_items(
     search_term: Optional[str] = None,
@@ -46,7 +47,7 @@ def get_all_raw_items(
         data=response_data
     )
      
-
+# Update raw item
 @raw_items_route.put("/update/raw-item/{item_id}")
 def update_raw_item(item_id: str, updates: Dict):
     try:

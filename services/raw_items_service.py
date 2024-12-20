@@ -1,5 +1,6 @@
 from typing import Optional, Dict
-from pymongo import ASCENDING, DESCENDING
+from bson.objectid import ObjectId
+from pymongo import ASCENDING, DESCENDING, ReturnDocument
 from database.connection import rawItem_collection
 from datetime import datetime
 from constants.raw_items_constant import SEARCH_FIELDS, FILTER_FIELDS
@@ -87,11 +88,7 @@ def fetch_all_raw_items(
     }
 
 
-from typing import Dict, Optional
-from pymongo import ReturnDocument
-from database.connection import rawItem_collection
-from bson.objectid import ObjectId
-import datetime
+
 
 def edit_raw_item(item_id: str, updates: Dict[str, Optional[str]]) -> dict:
     """
