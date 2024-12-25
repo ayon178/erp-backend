@@ -8,6 +8,7 @@ from routes.entry import entry_route
 from routes.raw_items_route import raw_items_route
 from routes.meals_route import meals_route
 from routes.feedback_route import feedback_route
+from routes.user_route import user_route
 
 app = FastAPI()
 
@@ -54,4 +55,5 @@ app.include_router(entry_route)
 app.include_router(raw_items_route)
 app.include_router(meals_route)
 app.include_router(feedback_route)
+app.include_router(user_route)
 
