@@ -13,12 +13,14 @@ from routes.user_route import user_route
 app = FastAPI()
 
 # Add CORS Middleware
+origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://erp-solution-three.vercel.app"],  # Allow your frontend's origin
-    allow_credentials=True,  # Allow cookies and credentials
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Custom HTTPException Handler
