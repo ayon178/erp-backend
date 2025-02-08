@@ -113,3 +113,34 @@ def login_user(credentials: Dict) -> Dict:
         "designation": user["designation"]
     }
 
+
+def get_logged_in_user(token: str) -> Dict:
+    """
+    Fetch the logged-in user's details using their JWT token.
+    :param token: The JWT token provided by the user.
+    :return: A dictionary containing the user's details.
+    """
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        
+        # Extract the user_id from the token payload
+        user_id = payload.get("user_id")
+        if not user_id:
+            raise ValueError("Invalid token: Missing user_id.")
+        
+        # Query the database for the user
+        user = users_collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise ValueError("User not found.")
+        
+        # Exclude sensitive fields like password
+        user["_id"] = str(user["_id"])  # Convert ObjectId to string
+        user.pop("password", None)  # Remove the hashed password
+        
+        return user
+    
+    except jwt.ExpiredSignatureError:
+        raise ValueError("Token has expired.")
+    except jwt.InvalidTokenError:
+        raise ValueError("Invalid token.")

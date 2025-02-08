@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from models.user_model import UserModel
-from services.user_service import create_user, login_user  # Import the login_user function
+from services.user_service import create_user, login_user, get_logged_in_user  # Import the login_user function
 from utils.response import create_response
 
 # Define the router
@@ -46,3 +46,39 @@ def login(credentials: dict):
     except ValueError as e:
         # Handle invalid credentials or other errors gracefully
         raise HTTPException(status_code=401, detail=str(e))
+    
+
+@user_route.get("/user/me")
+def get_logged_in_user_route(
+    authorization: str = Header(None)  # Extract the Authorization header
+):
+    """
+    Route to fetch the logged-in user's details using their JWT token.
+    :param authorization: The Authorization header containing the JWT token (e.g., "Bearer <JWT_TOKEN>").
+    :return: Standardized response with the user's details.
+    """
+    try:
+        # Validate the Authorization header
+        if not authorization or not authorization.startswith("Bearer "):
+            raise ValueError("Invalid Authorization header. Expected format: 'Bearer <JWT_TOKEN>'.")
+        
+        # Extract the token from the header
+        token = authorization.split(" ")[1]
+        
+        # Fetch the logged-in user's details using the service
+        user_details = get_logged_in_user(token)
+        
+        # Return the standardized response
+        return create_response(
+            status="Ok",
+            status_code=200,
+            message="User details fetched successfully",
+            data=user_details
+        )
+    
+    except ValueError as e:
+        # Handle validation errors gracefully
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        # Handle unexpected errors
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
