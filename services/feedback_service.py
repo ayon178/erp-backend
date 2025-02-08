@@ -128,6 +128,7 @@ def fetch_feedback(
     # Additional filters
     if filters:
         FILTER_FIELDS = [
+            "userId",
             "createdAt",
             "canteenService",
             "canteedFoodSatisfaction",
