@@ -63,25 +63,45 @@ def create_user(user_data: Dict) -> Dict:
 
 # Function to login a user
 def login_user(credentials: Dict) -> Dict:
-    # Validate required fields
-    required_fields = ["email", "password"]
-    for field in required_fields:
-        if field not in credentials or not credentials[field]:
-            raise ValueError(f"Missing or empty required field: {field}")
+    """
+    Authenticate a user based on member_serial_number, email, phone1, or phone2 and password.
+    :param credentials: A dictionary containing one of the identifiers (member_serial_number, email, phone1, phone2) and password.
+    :return: A dictionary containing the access token and designation.
+    """
+    # Extract password from credentials
+    password = credentials.get("password")
+    if not password:
+        raise ValueError("Password is required.")
 
-    # Find the user by email
-    user = users_collection.find_one({"email": credentials["email"]})
+    # Check which identifier is provided
+    identifier_fields = ["member_serial_number", "email", "phone1", "phone2"]
+    identifier = None
+    identifier_value = None
+
+    for field in identifier_fields:
+        if field in credentials and credentials[field]:
+            identifier = field
+            identifier_value = credentials[field]
+            break
+
+    if not identifier:
+        raise ValueError("One of the following fields is required: member_serial_number, email, phone1, phone2.")
+
+    # Query the database based on the provided identifier
+    query = {identifier: identifier_value}
+    user = users_collection.find_one(query)
+
     if not user:
-        raise ValueError("Invalid email or password.")
+        raise ValueError("Invalid credentials.")
 
     # Verify the password
-    if not bcrypt.verify(credentials["password"], user["password"]):
-        raise ValueError("Invalid email or password.")
+    if not bcrypt.verify(password, user["password"]):
+        raise ValueError("Invalid credentials.")
 
     # Generate JWT access token
     payload = {
         "user_id": str(user["_id"]),
-        "email": user["email"],
+        "email": user.get("email"),  # Include email if available
         "designation": user["designation"],  # Include designation in the token
         "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=24)  # Token expires in 24 hours
     }
@@ -92,3 +112,4 @@ def login_user(credentials: Dict) -> Dict:
         "access_token": access_token,
         "designation": user["designation"]
     }
+
