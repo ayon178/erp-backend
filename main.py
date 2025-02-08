@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware
+from fastapi.middleware.cors import CORSMiddleware  
 from fastapi.responses import JSONResponse
 from utils.response import create_response
 # Routes import
@@ -15,9 +15,9 @@ app = FastAPI()
 # Add CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Allow your frontend's origin
+    allow_origins=["http://localhost:3000", "https://erp-solution-three.vercel.app"],  # Allow your frontend's origin
     allow_credentials=True,  # Allow cookies and credentials
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
 
