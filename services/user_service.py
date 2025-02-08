@@ -6,6 +6,7 @@ from database.connection import users_collection
 from passlib.hash import bcrypt
 from dotenv import load_dotenv
 import os
+import re
 
 # Load environment variables from .env file
 load_dotenv()
@@ -64,33 +65,33 @@ def create_user(user_data: Dict) -> Dict:
 # Function to login a user
 def login_user(credentials: Dict) -> Dict:
     """
-    Authenticate a user based on member_serial_number, email, phone1, or phone2 and password.
-    :param credentials: A dictionary containing one of the identifiers (member_serial_number, email, phone1, phone2) and password.
+    Authenticate a user based on a generic identifier (member_serial_number, email, phone1, or phone2) and password.
+    :param credentials: A dictionary containing an 'identifier' field and 'password'.
     :return: A dictionary containing the access token and designation.
     """
-    # Extract password from credentials
+    # Extract identifier and password from credentials
+    identifier = credentials.get("identifier")
     password = credentials.get("password")
+
+    if not identifier:
+        raise ValueError("Identifier is required.")
     if not password:
         raise ValueError("Password is required.")
 
-    # Check which identifier is provided
-    identifier_fields = ["member_serial_number", "email", "phone1", "phone2"]
-    identifier = None
-    identifier_value = None
+    # Determine which field the identifier corresponds to
+    query = {}
+    if re.match(r"^\d+$", str(identifier)):  # Check if identifier is numeric (member_serial_number or phone)
+        if len(str(identifier)) <= 6:  # Assuming member_serial_number is a short numeric value
+            query["member_serial_number"] = int(identifier)
+        else:  # Assume it's a phone number
+            query["$or"] = [{"phone1": identifier}, {"phone2": identifier}]
+    elif re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", identifier):  # Check if identifier is an email
+        query["email"] = identifier
+    else:
+        raise ValueError("Invalid identifier format.")
 
-    for field in identifier_fields:
-        if field in credentials and credentials[field]:
-            identifier = field
-            identifier_value = credentials[field]
-            break
-
-    if not identifier:
-        raise ValueError("One of the following fields is required: member_serial_number, email, phone1, phone2.")
-
-    # Query the database based on the provided identifier
-    query = {identifier: identifier_value}
+    # Query the database based on the constructed query
     user = users_collection.find_one(query)
-
     if not user:
         raise ValueError("Invalid credentials.")
 

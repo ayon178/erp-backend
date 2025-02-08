@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware
 from fastapi.responses import JSONResponse
 from utils.response import create_response
-
 # Routes import
 from routes.entry import entry_route
 from routes.raw_items_route import raw_items_route
@@ -11,6 +11,15 @@ from routes.feedback_route import feedback_route
 from routes.user_route import user_route
 
 app = FastAPI()
+
+# Add CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Allow your frontend's origin
+    allow_credentials=True,  # Allow cookies and credentials
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Custom HTTPException Handler
 @app.exception_handler(HTTPException)
@@ -56,4 +65,3 @@ app.include_router(raw_items_route)
 app.include_router(meals_route)
 app.include_router(feedback_route)
 app.include_router(user_route)
-
