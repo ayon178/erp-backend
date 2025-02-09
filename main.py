@@ -13,7 +13,7 @@ from routes.user_route import user_route
 app = FastAPI()
 
 # Add CORS Middleware
-origins = ["*"]
+origins = ["https://food-quality-survey.vercel.app/", "https://erp-solution-alpha.vercel.app/"]
 
 app.add_middleware(
     CORSMiddleware,
